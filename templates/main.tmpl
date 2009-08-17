@@ -1,15 +1,16 @@
 {% extends "layout.tmpl" %}
 
 {% block content %}
-<h1>A Simple WebFinger client</h1>
+<h1>A Simple WebFinger-like client</h1>
 
 <p>
-  This <a href="http://code.google.com/p/webfinger/">WebFinger</a>
+  This <a href="http://code.google.com/p/webfinger/">WebFinger</a>-like
   client implements a simplified <a
   href="http://groups.google.com/group/webfinger/browse_thread/thread/dd568ba740f515c0">strawman
   proposal</a> for email-to-identity lookup.  Your email address
   probably won't work with this form yet, but it could with just a few
-  simple changes on your site.
+  simple changes on your site.  Be sure to read the WebFinger site for the 
+  real protocol proposal.
 </p>
 
 <form action="/lookup" method="get">
