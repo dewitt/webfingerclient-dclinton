@@ -193,7 +193,10 @@ class LookupPage(AbstractPage):
     if not local_part:
       return self._error('Couldn\'t find local-part in %s' % identifier)
 
-    finger_templates = self._get_finger_templates(domain)
+    try:
+      finger_templates = self._get_finger_templates(domain)
+    except Exception:
+      return self._error('Couldn\'t load from domain %s' % domain)
     if not finger_templates:
       return self._error('Couldn\'t find finger template for %s' % domain)
 
