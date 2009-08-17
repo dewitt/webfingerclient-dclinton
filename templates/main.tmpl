@@ -1,0 +1,32 @@
+{% extends "layout.tmpl" %}
+
+{% block content %}
+<h1>A Simple WebFinger client</h1>
+
+<p>
+  This <a href="http://code.google.com/p/webfinger/">WebFinger</a>
+  client implements a simplified strawman proposal for
+  email-to-identity lookup.  Your email address probably won't work
+  with this form yet, but it could with just a few simple changes on
+  your site.
+</p>
+
+<form action="/lookup" method="get">
+ <fieldset>
+  <legend>Email-like identifier to profile lookup</legend>
+  {% if error %}
+  <p>
+   <label class="error">Error:</label>
+   <span class="error">{{ error }}</span>
+  </p>
+  {% endif %}
+  <p>
+   <label for="identifier">Identifier:</label> 
+   <input name="identifier" type="text" tabindex="1"> <input type="submit" value="Lookup">
+   <br>
+   <span class="example">For example: dewitt&#64;unto.net</span>
+  </p>
+ </fieldset>
+</form>
+
+{% endblock %}

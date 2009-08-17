@@ -1,0 +1,20 @@
+{% extends "layout.tmpl" %}
+
+{% block content %}
+<section>
+ <h1>Found the following services for {{ addr_spec }}:</h1>
+ <ul>
+ {% for service in services %}
+   {% if service.title %}
+     <li><a href="{{service.href}}">{{service.title}}</a></li>
+   {% else %}
+     <li><a href="{{service.href}}">{{service.href}}</a></li>
+   {% endif %}
+ {% endfor %}
+ </ul>
+</section>
+
+<p>
+  <a href="/">Try another</a> identifier.
+</p>
+{% endblock %}

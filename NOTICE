@@ -3,5 +3,9 @@ NOTICE
 The html5lib library (http://code.google.com/p/html5lib/) is used
 under the terms of the MIT License and is copyright several authors.
 
-This code is made available under the Apache License and is copyright DeWitt Clinton.
+The httplib2 library (http://code.google.com/p/httplib2/) is used
+under the terms of the MIT Library and is copyright several authors.
+
+This code is made available under the Apache License 
+and is copyright DeWitt Clinton.
 

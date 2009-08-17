@@ -5,6 +5,9 @@ api_version: 1
 
 handlers:
 
+- url: /css/
+  static_dir: static/css/
+
 - url: /.*
   script: webfingerclient.py
 
