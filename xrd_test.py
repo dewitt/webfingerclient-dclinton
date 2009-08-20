@@ -17,7 +17,6 @@
 #   limitations under the License.
 
 import unittest
-
 import xrd
 
 class ParserTest(unittest.TestCase):
