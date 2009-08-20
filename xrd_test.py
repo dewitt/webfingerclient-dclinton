@@ -1,6 +1,6 @@
 #!/usr/bin/python2.5
 #
-# Parses XRD documents.
+# Tests the XRD parser.
 #
 # Copyright 2009 DeWitt Clinton
 #
