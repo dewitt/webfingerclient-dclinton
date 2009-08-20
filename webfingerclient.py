@@ -48,7 +48,7 @@ ADDR_SPEC_RE = re.compile(ADDR_SPEC)
 
 # Enable a caching HTTP client
 MEMCACHE_CLIENT = Client()
-HTTP_CLIENT = httplib2.Http(MEMCACHE_CLIENT)  
+HTTP_CLIENT = httplib2.Http(MEMCACHE_CLIENT)
 
 # Create a reusable HTML5 parser
 ETREE_BUILDER = html5lib.treebuilders.getTreeBuilder("etree", etree)
@@ -89,7 +89,7 @@ class LookupPage(AbstractPage):
 
   def _parse_identifier(self, identifier):
     """Treats an identifier as a RFC2822 addr-spec and splits it.
-    
+
     Args:
       identifier: An email-like identifier
     Returns:
@@ -118,7 +118,7 @@ class LookupPage(AbstractPage):
     for link in links:
       href = link.get('href')
       rels = link.get('rel', '').split()
-      type = link.get('type', 'text/html') 
+      type = link.get('type', 'text/html')
       if href and 'finger' in rels:
         if type in ['text/html', 'text/xhtml']:
           finger_templates.append(href)
@@ -163,7 +163,7 @@ class LookupPage(AbstractPage):
 
   def _get_services(self, finger_templates, addr_spec, local_part):
     """Use the finger templates to fetch associated services.
-    
+
     Args:
       finger_templates: A list of rel="finger" templates
       addr_spec: An addr-spec string (e.g., "dewitt@unto.net")
@@ -201,7 +201,7 @@ class LookupPage(AbstractPage):
       return self._error('Couldn\'t find finger template for %s' % domain)
 
     services = self._get_services(finger_templates, addr_spec, local_part)
-    
+
     template_values = dict()
     template_values['identifier'] = identifier
     template_values['addr_spec'] = addr_spec
@@ -216,7 +216,7 @@ class LookupPage(AbstractPage):
 # Global application dispatcher
 application = webapp.WSGIApplication(
   [('/', MainPage),
-   ('/lookup', LookupPage)], 
+   ('/lookup', LookupPage)],
   debug=True)
 
 
