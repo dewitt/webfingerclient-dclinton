@@ -17,7 +17,6 @@
 #   limitations under the License.
 
 import imports
-
 import xrd_pb2
 
 # As specified in:
