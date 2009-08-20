@@ -21,5 +21,6 @@ message Xfn {
 message Link {
   optional string href = 1;
   optional string title = 2;
-  repeated string relations = 3;
+  optional string type = 3;
+  repeated string relations = 4;
 }

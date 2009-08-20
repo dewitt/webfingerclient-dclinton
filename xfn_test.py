@@ -47,8 +47,9 @@ class ParserTest(unittest.TestCase):
              <a href="http://example.com/4" rel="notme me">4</a>
              <link href="http://example.com/5"/>
              <link href="http://example.com/6" rel="meat"/>
-             <link href="http://example.com/7" rel="me"/>
-             <link href="http://example.com/8" rel="me notme" title="8"/>
+             <link href="http://example.com/7" type="text/html" rel="me"/>
+             <link href="http://example.com/8" type="text/xhtml" rel="me notme" 
+                   title="8"/>
             </body>
            </html>''')
     self.assertEquals(4, len(xfn_pb.links))

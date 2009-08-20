@@ -52,8 +52,15 @@ _LINK = descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='relations', full_name='Link.relations', index=2,
-      number=3, type=9, cpp_type=9, label=3,
+      name='type', full_name='Link.type', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='relations', full_name='Link.relations', index=3,
+      number=4, type=9, cpp_type=9, label=3,
       default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

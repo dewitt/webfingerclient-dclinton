@@ -80,12 +80,15 @@ class Parser(object):
     for link in document.findall('.//link'):
       href = link.get('href')
       rels = link.get('rel', '').split()
+      type = link.get('type')
       title = link.get('title')
       if href and 'me' in rels:
         xfn_link = xfn.links.add()
         xfn_link.href = href
         if title is not None:
           xfn_link.title = title
+        if type is not None:
+          xfn_link.type = type
         for rel in rels:
           xfn_link.relations.append(rel)
     return xfn
