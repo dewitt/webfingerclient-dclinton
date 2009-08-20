@@ -24,3 +24,9 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 THIRD_PARTY = os.path.join(APP_DIR, 'third_party')
 
 sys.path.insert(0, THIRD_PARTY)
+
+if 'google' in sys.modules:
+  orig_google_module = sys.modules['google']
+  del sys.modules['google']
+  # Import google from our path, including third_party
+  import google
