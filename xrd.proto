@@ -1,0 +1,75 @@
+// Represents parsed XRD documents
+//
+// Copyright 2009 DeWitt Clinton
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
+// Implemented as defined in:
+//
+//   http://www.oasis-open.org/committees/download.php/33772/xrd-1.0-wd04.html
+
+message Xrd {
+  optional string id = 1;  // xs:ID
+  optional Expires expires = 2;
+  optional Subject subject = 3;
+  repeated Alias aliases = 4;
+  repeated Type types = 5;
+  repeated Link links = 6;
+  // optional Signature signature = 7;  // save slot, not implemented
+}
+
+message Expires {
+  optional string value = 1;  // xs:dateTime
+}
+
+message Subject {
+  optional string match = 1;  // xs:anyURI
+  optional string value = 2;  // xs:anyURI
+}
+
+message Alias {
+  optional string value = 1;  // xs:anyURI
+}
+
+message Type {
+  optional bool required = 1 [default = false];
+  optional string value = 2;  // xs:anyURI
+}
+
+message Link {
+  optional sint32 priority = 1;
+  optional Subject subject = 2;
+  repeated Rel relations = 3;
+  repeated MediaType media_types = 4;
+  repeated Uri uris = 5;
+  repeated UriTemplate uri_templates = 6;
+  // optional KeyInfo key_info = 7;  // save slot, not implemented
+}
+
+message Rel {
+  optional string value = 1;  // xs:anyURI
+}
+
+message MediaType {
+  optional string value = 1;  // xs:string
+}
+
+message Uri {
+  optional sint32 priority = 1;
+  optional string value = 2;  // xs:anyURI
+}
+
+message UriTemplate {
+  optional sint32 priority = 1;
+  optional string value = 2;  // xs:string
+}
