@@ -76,13 +76,17 @@ class Client(object):
     else:
       self._xrd_parser = xrd.Parser()
 
-  def lookup(self, id):
+  def lookup(self, id, normalize=True):
     """Look up a webfinger resource by (email-like) id.
 
     Args:
       id: An (email-like) id
+      normalize:
     Returns:
-      A xrd_pb2.Xrd instance.
+      Either a heterogeneous list of xrd_pb2.Xrd and/or xfn_pb2.Xfn
+      instances (depending on the service response type), or
+      a homogeneous list of html5_pb2.Link instances if normalize
+      is True.
     Raises:
       FetchError if a URL can not be retrieved.
       WebfingerError if a resource can not be parsed as a WebFinger XRD.
@@ -106,7 +110,7 @@ class Client(object):
     response, content = self._http_client.request(service_url)
     if response.status != 200:
       raise FetchError(
-        'Could not fetch %s. Status %d.' % (service_url, response.status))    
+        'Could not fetch %s. Status %d.' % (service_url, response.status))
     service_xrd = self._xrd_parser.parse(content)
     return service_xrd
 
@@ -168,6 +172,19 @@ class Client(object):
     if not match:
       raise ParseError('Could not parse %s for local_part, domain' % id)
     return addr_spec, match.group(1), match.group(2)
+
+  def _xrd_as_html5_links(self, xrd_description):
+    """Converts a xrd_pb2.Xrd instance into a list of html5_pb2.Links.
+
+    This denormalizes the Link element in the Xrd into a set of
+    HTML5 link elements.
+
+    Args:
+      xrd_description: An xrd_pb2.Xrd instance
+    Returns:
+      A list of html5_pb2.Link instances
+    """
+    
 
 
 def main(argv):
