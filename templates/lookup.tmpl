@@ -5,7 +5,7 @@
  <h1>Found the following services for {{ identifier }}:</h1>
  <ul>
  {% for description in descriptions %}
-   <code><pre>{{ description }}</pre></code>
+   <pre class="description">{{ description|escape }}</pre>
  {% endfor %}
  </ul>
 </section>

@@ -96,7 +96,7 @@ class Client(object):
       for template in webfinger_service_link.uri_templates:
         service_descriptions.append(
           self._get_service_description(template.value, id))
-      for uri in webfinger_service_link.uri_templates:
+      for uri in webfinger_service_link.uris:
         service_descriptions.append(
           self._get_service_description(uri.value, id))
     return service_descriptions
