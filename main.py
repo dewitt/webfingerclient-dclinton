@@ -46,7 +46,7 @@ HTML_PARSER = html5lib.HTMLParser(ETREE_BUILDER)
 
 def sanitize(string):
   """Allow only very safe chars through."""
-  return re.sub(r'[^\w\,\.\s\']', '', string)
+  return re.sub(r'[^\w\,\.\s\'\:\/\-\_\?]', '', string)
 
 
 # Abstract base class for all page view classes

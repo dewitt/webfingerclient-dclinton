@@ -127,10 +127,7 @@ class Client(object):
     """
     service_url = self._interpolate_webfinger_template(template, id)
     logging.info('Fetching service url %s' % service_url)
-    response, content = self._http_client.request(service_url)
-    if response.status != 200:
-      raise FetchError(
-        'Could not fetch %s. Status %d.' % (service_url, response.status))
+    content = self._fetch_url(service_url)
     return self._xrd_parser.parse(content)
 
   def _interpolate_webfinger_template(self, template, id):
@@ -140,7 +137,7 @@ class Client(object):
       template: A webfinger URI template
       id: A identity string
     Returns:
-      The template with {id} and {%id} replaced.
+      The template with {id} and {%id} replaced
     """
     return template.replace('{id}', id).replace('{%id}', urllib.quote(id))
 
@@ -150,14 +147,11 @@ class Client(object):
     Args:
       A domain name
     Returns:
-      A list of xrd_pb2.Link instances of the webfinger service type.
+      A list of xrd_pb2.Link instances of the webfinger service type
     """
     domain_url = DOMAIN_LEVEL_XRD_TEMPLATE % domain
     logging.info('Fetching domain url %s' % domain_url)
-    response, content = self._http_client.request(domain_url)
-    if response.status != 200:
-      raise FetchError(
-        'Could not fetch %s. Status %d.' % (domain_url, response.status))
+    content = self._fetch_url(domain_url)
     domain_xrd = self._xrd_parser.parse(content)
     # TODO(dewitt): Sort by priority
     links = list()
@@ -173,9 +167,9 @@ class Client(object):
     Args:
       id: An account identifier
     Returns:
-      The tuple (addr_spec, local_part, domain) if it can be parsed.
+      The tuple (addr_spec, local_part, domain) if it can be parsed
     Raises:
-      ParseError if the id can not be parsed.
+      ParseError if the id can not be parsed
     """
     realname, addr_spec = email.utils.parseaddr(id)
     if not addr_spec:
@@ -184,6 +178,25 @@ class Client(object):
     if not match:
       raise ParseError('Could not parse %s for local_part, domain' % id)
     return addr_spec, match.group(1), match.group(2)
+
+  def _fetch_url(self, url):
+    """Fetch a URL.
+
+    Args:
+      url: The URL to fetch
+    Returns:
+      The content of the URL on successful (200 OK) responses
+    Raises:
+      FetchError if the URL can not be retrieved
+    """
+    try:
+      response, content = self._http_client.request(url)
+    except Exception, e:  # This is hackish
+      raise FetchError('Could not fetch %s. Host down?' % url)
+    if response.status != 200:
+      raise FetchError(
+        'Could not fetch %s. Status %d.' % (url, response.status))
+    return content
 
 def main(argv):
   if len(argv) < 2:
