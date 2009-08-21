@@ -68,7 +68,10 @@ class Parser(object):
     """
     if not string:
       raise ParseError('Empty input string.')
-    document = self._etree.fromstring(string)
+    try:
+      document = self._etree.fromstring(string)
+    except SyntaxError:
+      raise ParseError('Could not parse %s' % string)
     if document.tag != XRD_QNAME:
       raise ParseError('Root is not an <XRD/> element: %s' % document)
     description = xrd_pb2.Xrd()

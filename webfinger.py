@@ -20,6 +20,7 @@ import imports
 
 import email.utils
 import httplib2
+import logging
 import re
 import sys
 import urllib
@@ -57,7 +58,6 @@ class WebfingerError(Exception):
   """Raised if services found are not valid WebFinger documents."""
   pass
 
-
 class Client(object):
 
   def __init__(self, http_client=None, xrd_parser=None):
@@ -76,43 +76,62 @@ class Client(object):
     else:
       self._xrd_parser = xrd.Parser()
 
-  def lookup(self, id, normalize=True):
+  def lookup(self, id):
     """Look up a webfinger resource by (email-like) id.
 
     Args:
-      id: An (email-like) id
-      normalize:
+      id: An account identifier
     Returns:
-      Either a heterogeneous list of xrd_pb2.Xrd and/or xfn_pb2.Xfn
-      instances (depending on the service response type), or
-      a homogeneous list of html5_pb2.Link instances if normalize
-      is True.
+      A list of discovered xrd_pb2.Xrd instances.
     Raises:
       FetchError if a URL can not be retrieved.
-      WebfingerError if a resource can not be parsed as a WebFinger XRD.
+      ParseError if a description can not be parsed.
     """
+    id = self._normalize_id(id)
     addr_spec, local_part, domain = self._parse_id(id)
-    domain_url = DOMAIN_LEVEL_XRD_TEMPLATE % domain
-    response, content = self._http_client.request(domain_url)
-    if response.status != 200:
-      raise FetchError(
-        'Could not fetch %s. Status %d.' % (domain_url, response.status))
-    domain_xrd = self._xrd_parser.parse(content)
-    webfinger_link = self._get_webfinger_service_link(domain_xrd)
-    if not webfinger_link:
-      raise WebfingerError(
-        'Could not find webfinger service in %s' % domain_url)
-    service_template = self._get_service_template(webfinger_link)
-    if not service_template:
-      raise WebfingerError(
-        'Could not find webfinger service template in %s' % domain_url)
-    service_url = self._interpolate_webfinger_template(service_template, id)
+    webfinger_service_links = self._get_webfinger_service_links(domain)
+    service_descriptions = list()
+    # TODO(dewitt): Search in priority order
+    for webfinger_service_link in webfinger_service_links:
+      for template in webfinger_service_link.uri_templates:
+        service_descriptions.append(
+          self._get_service_description(template.value, id))
+      for uri in webfinger_service_link.uri_templates:
+        service_descriptions.append(
+          self._get_service_description(uri.value, id))
+    return service_descriptions
+
+  def _normalize_id(self, id):
+    """Normalize the account identifier.
+
+    Args:
+      id: An acctount identifier
+    Returns:
+      A normalized account identifier, if possible.
+    """
+    if id.startswith('acct://'):
+      return id[7:]
+    elif id.startswith('acct:'):
+      return id[5:]
+    return id
+    
+  def _get_service_description(self, template, id):
+    """Retrieve and XRD or XFN instance from a xrd_pb2.Link.
+
+    Args:
+      template: A URI template string or URI string
+      id: An account identifier
+    Returns:
+      Either a xrd_pb2.Xrd or a xfn_pb2.Xfn instance (depending on the 
+      service type).
+    """
+    service_url = self._interpolate_webfinger_template(template, id)
+    logging.info('Fetching service url %s' % service_url)
     response, content = self._http_client.request(service_url)
     if response.status != 200:
       raise FetchError(
         'Could not fetch %s. Status %d.' % (service_url, response.status))
-    service_xrd = self._xrd_parser.parse(content)
-    return service_xrd
+    return self._xrd_parser.parse(content)
 
   def _interpolate_webfinger_template(self, template, id):
     """Replaces occurances of {id} and {%id} within a webfinger template.
@@ -125,41 +144,34 @@ class Client(object):
     """
     return template.replace('{id}', id).replace('{%id}', urllib.quote(id))
 
-  def _get_service_template(self, webfinger_link):
-    """Finds the best matching URI or URITemplate for a given webfinger service.
+  def _get_webfinger_service_links(self, domain):
+    """Finds potential webfinger service links.
 
     Args:
-      webfinger_link: An xrd_pb2.Link instance
+      A domain name
     Returns:
-      A string that can be treated as a webfinger service URI template, or None.
+      A list of xrd_pb2.Link instances of the webfinger service type.
     """
+    domain_url = DOMAIN_LEVEL_XRD_TEMPLATE % domain
+    logging.info('Fetching domain url %s' % domain_url)
+    response, content = self._http_client.request(domain_url)
+    if response.status != 200:
+      raise FetchError(
+        'Could not fetch %s. Status %d.' % (domain_url, response.status))
+    domain_xrd = self._xrd_parser.parse(content)
     # TODO(dewitt): Sort by priority
-    if len(webfinger_link.uri_templates) > 0:
-      return webfinger_link.uri_templates[0].value
-    if len(webfinger_link.uris) > 0:
-      return webfinger_link.uris[0].value
-    return None
-
-  def _get_webfinger_service_link(self, description):
-    """Finds a link matching the webfinger service rel value.
-
-    Args:
-      A xrd_pb2.Xrd protobuf
-    Returns:
-      A xrd_pb2.Link protobuf if found, otherwise None
-    """
-    # TODO(dewitt): Sort by priority
-    for link in description.links:
+    links = list()
+    for link in domain_xrd.links:
       for relation in link.relations:
         if relation.value == WEBFINGER_SERVICE_REL_VALUE:
-          return link
-    return None
+          links.append(link)
+    return links
 
   def _parse_id(self, id):
     """Treats an identifier as a RFC2822 addr-spec and splits it.
 
     Args:
-      id: An email-like identifier
+      id: An account identifier
     Returns:
       The tuple (addr_spec, local_part, domain) if it can be parsed.
     Raises:
@@ -173,26 +185,12 @@ class Client(object):
       raise ParseError('Could not parse %s for local_part, domain' % id)
     return addr_spec, match.group(1), match.group(2)
 
-  def _xrd_as_html5_links(self, xrd_description):
-    """Converts a xrd_pb2.Xrd instance into a list of html5_pb2.Links.
-
-    This denormalizes the Link element in the Xrd into a set of
-    HTML5 link elements.
-
-    Args:
-      xrd_description: An xrd_pb2.Xrd instance
-    Returns:
-      A list of html5_pb2.Link instances
-    """
-    
-
-
 def main(argv):
   if len(argv) < 2:
     raise UsageError('Usage webfinger.py id')
   client = Client()
-  print client.lookup(argv[1])
-
+  for description in client.lookup(argv[1]):
+    print description
 
 if __name__ == "__main__":
   main(sys.argv)

@@ -2,14 +2,10 @@
 
 {% block content %}
 <section>
- <h1>Found the following services for {{ addr_spec }}:</h1>
+ <h1>Found the following services for {{ identifier }}:</h1>
  <ul>
- {% for service in services %}
-   {% if service.title %}
-     <li><a href="{{service.href}}">{{service.title}}</a></li>
-   {% else %}
-     <li><a href="{{service.href}}">{{service.href}}</a></li>
-   {% endif %}
+ {% for description in descriptions %}
+   <code><pre>{{ description }}</pre></code>
  {% endfor %}
  </ul>
 </section>

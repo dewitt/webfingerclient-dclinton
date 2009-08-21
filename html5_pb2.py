@@ -24,21 +24,21 @@ _GLOBALATTRIBUTES = descriptor.Descriptor(
   options=None)
 
 
-_CUSTOMATTRIBUTES = descriptor.Descriptor(
-  name='CustomAttributes',
-  full_name='CustomAttributes',
+_ATTRIBUTE = descriptor.Descriptor(
+  name='Attribute',
+  full_name='Attribute',
   filename='html5.proto',
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='name', full_name='CustomAttributes.name', index=0,
+      name='name', full_name='Attribute.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='value', full_name='CustomAttributes.value', index=1,
+      name='value', full_name='Attribute.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
@@ -68,8 +68,8 @@ _LINK = descriptor.Descriptor(
       options=None),
     descriptor.FieldDescriptor(
       name='custom_attributes', full_name='Link.custom_attributes', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      default_value=None,
+      number=2, type=11, cpp_type=10, label=3,
+      default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -132,15 +132,15 @@ _LINK = descriptor.Descriptor(
 
 
 _LINK.fields_by_name['global_attributes'].message_type = _GLOBALATTRIBUTES
-_LINK.fields_by_name['custom_attributes'].message_type = _CUSTOMATTRIBUTES
+_LINK.fields_by_name['custom_attributes'].message_type = _ATTRIBUTE
 
 class GlobalAttributes(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _GLOBALATTRIBUTES
 
-class CustomAttributes(message.Message):
+class Attribute(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _CUSTOMATTRIBUTES
+  DESCRIPTOR = _ATTRIBUTE
 
 class Link(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType

@@ -20,15 +20,15 @@ message GlobalAttributes {
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/#custom-data-attribute
-message CustomAttributes {
-  optional string name = 1;  // the part after the data- prefix
+message Attribute {
+  optional string name = 1;
   optional string value = 2; 
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/#the-link-element
 message Link {
   optional GlobalAttributes global_attributes = 1;
-  optional CustomAttributes custom_attributes = 2;
+  repeated Attribute custom_attributes = 2;
   optional string href = 3;
   optional string rel = 4;
   optional string media = 5;

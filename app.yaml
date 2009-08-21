@@ -9,7 +9,7 @@ handlers:
   static_dir: static/css/
 
 - url: /.*
-  script: webfingerclient.py
+  script: main.py
 
 
 
