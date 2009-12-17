@@ -34,127 +34,86 @@ class ParserTest(unittest.TestCase):
     description = parser.parse(
         '<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"/>')
 
+  def testParseWithId(self):
+    parser = xrd.Parser()
+    description = parser.parse(
+        '<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0" xml:id="foo"/>')
+    self.assertEquals('foo', description.id)
+
   def testParseWithExpires(self):
     parser = xrd.Parser()
     description = parser.parse(
         '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
              <Expires>1970-01-01T00:00:00Z</Expires>
            </XRD>''')
-    self.assertEquals('1970-01-01T00:00:00Z', description.expires.value)
+    self.assertEquals('1970-01-01T00:00:00Z', description.expires)
 
   def testParseWithSubject(self):
     parser = xrd.Parser()
     description = parser.parse(
         '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
-             <Expires>1970-01-01T00:00:00Z</Expires>
              <Subject>acct://bradfitz@gmail.com</Subject>
            </XRD>''')
-    self.assertEquals('acct://bradfitz@gmail.com', description.subject.value)
+    self.assertEquals('acct://bradfitz@gmail.com', description.subject)
 
-  def testParseWithSubject(self):
-    parser = xrd.Parser()
-    description = parser.parse(
-        '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
-             <Expires>1970-01-01T00:00:00Z</Expires>
-             <Subject>acct://bradfitz@gmail.com</Subject>
-           </XRD>''')
-    self.assertEquals('acct://bradfitz@gmail.com', description.subject.value)
 
   def testParseWithAliases(self):
     parser = xrd.Parser()
     description = parser.parse(
         '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
-             <Expires>1970-01-01T00:00:00Z</Expires>
-             <Subject>acct://bradfitz@gmail.com</Subject>
              <Alias>http://www.google.com/profiles/bradfitz</Alias>
              <Alias>http://www.google.com/profiles/brad.fitz</Alias>
            </XRD>''')
     self.assertEquals(2, len(description.aliases))
     self.assertEquals('http://www.google.com/profiles/bradfitz',
-                      description.aliases[0].value)
+                      description.aliases[0])
     self.assertEquals('http://www.google.com/profiles/brad.fitz',
-                      description.aliases[1].value)
+                      description.aliases[1])
 
-  def testParseWithTypes(self):
+  def testParseAll(self):
     parser = xrd.Parser()
     description = parser.parse(
-        '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
+        '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xml:id="foo">
              <Expires>1970-01-01T00:00:00Z</Expires>
-             <Subject>acct://bradfitz@gmail.com</Subject>
-             <Alias>http://www.google.com/profiles/bradfitz</Alias>
-             <Alias>http://www.google.com/profiles/brad.fitz</Alias>
-             <Type required="true">http://blgx.example.net/ns/version/1.2</Type>
-             <Type required="0">http://blgx.example.net/ns/version/1.1</Type>
-             <Type>http://blgx.example.net/ns/ext/language</Type>
-           </XRD>''')
-    self.assertEquals(3, len(description.types))
-    self.assertEquals('http://blgx.example.net/ns/version/1.2',
-                      description.types[0].value)
-    self.assertEquals(True, description.types[0].required)
-    self.assertEquals('http://blgx.example.net/ns/version/1.1',
-                      description.types[1].value)
-    self.assertEquals(False, description.types[1].required)
-    self.assertEquals('http://blgx.example.net/ns/ext/language',
-                      description.types[2].value)
-    self.assertEquals(False, description.types[2].required)
-
-
-  def testParseWithLinks(self):
-    parser = xrd.Parser()
-    description = parser.parse(
-        '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
-             <Expires>1970-01-01T00:00:00Z</Expires>
-             <Subject>acct://bradfitz@gmail.com</Subject>
-             <Alias>http://www.google.com/profiles/bradfitz</Alias>
-             <Alias>http://www.google.com/profiles/brad.fitz</Alias>
-             <Type required="true">http://blgx.example.net/ns/version/1.2</Type>
-             <Type required="0">http://blgx.example.net/ns/version/1.1</Type>
-             <Type>http://blgx.example.net/ns/ext/language</Type>
-             <Link>
-               <Rel>http://portablecontacts.net/spec/1.0</Rel>
-               <URI>http://www-opensocial.googleusercontent.com/api/people/</URI>
-             </Link>
-             <Link>
-               <Rel>http://webfinger.info/rel/profile-page</Rel>
-               <Rel>describedby</Rel>
-               <MediaType>text/html</MediaType>
-               <MediaType>text/xhtml</MediaType>
-               <URI>http://www.google.com/profiles/bradfitz</URI>
-             </Link>
-             <Link priority="10">
-               <Rel>describedby</Rel>
-               <MediaType>text/x-foo</MediaType>
-               <URI priority="0">
-                 http://s2.googleusercontent.com/webfinger/?q=bradfitz%40gmail.com&amp;fmt=foo
-               </URI>
-               <URI priority="10">
-                 http://s2.googleusercontent.com/webfinger/?q=bradfitz%40gmail.com&amp;fmt=foo
-               </URI>
-             </Link>
-             <Link>
-               <Rel>describedby</Rel>
-               <MediaType>application/rdf+xml</MediaType>
-               <URITemplate>
-                 http://s2.googleusercontent.com/webfinger/?q=bradfitz%40gmail.com&amp;fmt=foaf
-               </URITemplate>
+             <Subject>http://example.com/gpburdell</Subject>
+             <Property type="http://spec.example.net/type/person"
+                 xsi:nil="true" />
+             <Alias>http://people.example.com/gpburdell</Alias>
+             <Alias>acct:gpburdell@example.com</Alias>
+             <Link rel="http://spec.example.net/auth/1.0"
+                 href="http://services.example.com/auth" />
+             <Link rel="http://spec.example.net/photo/1.0" type="image/jpeg"
+                 href="http://photos.example.com/gpburdell.jpg">
+               <Title xml:lang="en">User Photo</Title>
              </Link>
            </XRD>''')
-    self.assertEquals(4, len(description.links))
-    self.assertEquals(1, len(description.links[0].relations))
-    self.assertEquals(1, len(description.links[0].uris))
-    self.assertEquals(2, len(description.links[1].relations))
-    self.assertEquals(1, len(description.links[1].uris))
-    self.assertEquals(2, len(description.links[1].media_types))
-    self.assertEquals(10, description.links[2].priority)
-    self.assertEquals(1, len(description.links[2].relations))
-    self.assertEquals(2, len(description.links[2].uris))
-    self.assertEquals(1, len(description.links[2].media_types))
-    self.assertEquals(0, description.links[2].uris[0].priority)
-    self.assertEquals(10, description.links[2].uris[1].priority)
-    self.assertEquals(1, len(description.links[3].relations))
-    self.assertEquals(1, len(description.links[3].uri_templates))
-    self.assertEquals(1, len(description.links[3].media_types))
-
+    self.assertEquals('foo', description.id)
+    self.assertEquals('1970-01-01T00:00:00Z', description.expires)
+    self.assertEquals('http://example.com/gpburdell', description.subject)
+    self.assertEquals('http://spec.example.net/type/person',
+                      description.properties[0].type)
+    self.assertEquals(True, description.properties[0].nil)
+    self.assertEquals(2, len(description.aliases))
+    self.assertEquals('http://people.example.com/gpburdell',
+                      description.aliases[0])
+    self.assertEquals('acct:gpburdell@example.com',
+                      description.aliases[1])
+    self.assertEquals(2, len(description.links))
+    self.assertEquals('http://spec.example.net/auth/1.0',
+                      description.links[0].rel)
+    self.assertEquals('http://services.example.com/auth',
+                      description.links[0].href)
+    self.assertEquals('http://spec.example.net/photo/1.0',
+                      description.links[1].rel)
+    self.assertEquals('image/jpeg',
+                      description.links[1].type)
+    self.assertEquals('http://photos.example.com/gpburdell.jpg',
+                      description.links[1].href)
+    self.assertEquals(1, len(description.links[1].titles))
+    self.assertEquals('User Photo', description.links[1].titles[0].value)
+    self.assertEquals('en', description.links[1].titles[0].lang)
 
 def suite():
   suite = unittest.TestSuite()

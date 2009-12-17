@@ -16,60 +16,34 @@
 
 // Implemented as defined in:
 //
-//   http://www.oasis-open.org/committees/download.php/33772/xrd-1.0-wd04.html
+//   http://www.oasis-open.org/committees/download.php/35274/xrd-1.0-wd10.html
 
 message Xrd {
-  optional string id = 1;  // xs:ID
-  optional Expires expires = 2;
-  optional Subject subject = 3;
-  repeated Alias aliases = 4;
-  repeated Type types = 5;
+  optional string id = 1;       // xs:ID
+  optional string expires = 2;  // xs:dateTime
+  optional string subject = 3;  // xs:anyURI
+  repeated string aliases = 4;  // xs:anyURI
+  repeated Property properties = 5; 
   repeated Link links = 6;
-  // optional Signature signature = 7;  // save slot, not implemented
+  // repeated Signature signature = 7;  // save slot, not implemented
 }
 
-message Expires {
-  optional string value = 1;  // xs:dateTime
-}
-
-message Subject {
-  optional string match = 1;  // xs:anyURI
-  optional string value = 2;  // xs:anyURI
-}
-
-message Alias {
-  optional string value = 1;  // xs:anyURI
-}
-
-message Type {
-  optional bool required = 1 [default = false];
-  optional string value = 2;  // xs:anyURI
+message Property {
+  optional bool nil = 1;      // xsi:nil
+  optional string type = 2;   // xs:anyURI
+  optional string value = 3;  // string?
 }
 
 message Link {
-  optional sint32 priority = 1;
-  optional Subject subject = 2;
-  repeated Rel relations = 3;
-  repeated MediaType media_types = 4;
-  repeated Uri uris = 5;
-  repeated UriTemplate uri_templates = 6;
-  // optional KeyInfo key_info = 7;  // save slot, not implemented
+  optional string rel = 1;           // web link
+  optional string type = 2;          // media type
+  optional string href = 3;          // xs:anyURI
+  optional string template = 4;      // uri template
+  repeated Title titles = 5;
+  repeated Property properties = 6;
 }
 
-message Rel {
-  optional string value = 1;  // xs:anyURI
-}
-
-message MediaType {
-  optional string value = 1;  // xs:string
-}
-
-message Uri {
-  optional sint32 priority = 1;
-  optional string value = 2;  // xs:anyURI
-}
-
-message UriTemplate {
-  optional sint32 priority = 1;
-  optional string value = 2;  // xs:string
+message Title {
+  optional string lang = 1;   // http://www.w3.org/TR/REC-xml/#RFC1766
+  optional string value = 2;  // string?
 }

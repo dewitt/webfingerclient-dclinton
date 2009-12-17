@@ -24,27 +24,27 @@ _XRD = descriptor.Descriptor(
       options=None),
     descriptor.FieldDescriptor(
       name='expires', full_name='Xrd.expires', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      default_value=None,
+      number=2, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='subject', full_name='Xrd.subject', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      default_value=None,
+      number=3, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='aliases', full_name='Xrd.aliases', index=3,
-      number=4, type=11, cpp_type=10, label=3,
+      number=4, type=9, cpp_type=9, label=3,
       default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='types', full_name='Xrd.types', index=4,
+      name='properties', full_name='Xrd.properties', index=4,
       number=5, type=11, cpp_type=10, label=3,
       default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -66,95 +66,29 @@ _XRD = descriptor.Descriptor(
   options=None)
 
 
-_EXPIRES = descriptor.Descriptor(
-  name='Expires',
-  full_name='Expires',
+_PROPERTY = descriptor.Descriptor(
+  name='Property',
+  full_name='Property',
   filename='xrd.proto',
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='value', full_name='Expires.value', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_SUBJECT = descriptor.Descriptor(
-  name='Subject',
-  full_name='Subject',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='match', full_name='Subject.match', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='value', full_name='Subject.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_ALIAS = descriptor.Descriptor(
-  name='Alias',
-  full_name='Alias',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='value', full_name='Alias.value', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_TYPE = descriptor.Descriptor(
-  name='Type',
-  full_name='Type',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='required', full_name='Type.required', index=0,
+      name='nil', full_name='Property.nil', index=0,
       number=1, type=8, cpp_type=7, label=1,
       default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='value', full_name='Type.value', index=1,
+      name='type', full_name='Property.type', index=1,
       number=2, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    descriptor.FieldDescriptor(
+      name='value', full_name='Property.value', index=2,
+      number=3, type=9, cpp_type=9, label=1,
       default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -175,42 +109,42 @@ _LINK = descriptor.Descriptor(
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='priority', full_name='Link.priority', index=0,
-      number=1, type=17, cpp_type=1, label=1,
-      default_value=0,
+      name='rel', full_name='Link.rel', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='subject', full_name='Link.subject', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      default_value=None,
+      name='type', full_name='Link.type', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='relations', full_name='Link.relations', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      default_value=[],
+      name='href', full_name='Link.href', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='media_types', full_name='Link.media_types', index=3,
-      number=4, type=11, cpp_type=10, label=3,
-      default_value=[],
+      name='template', full_name='Link.template', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='uris', full_name='Link.uris', index=4,
+      name='titles', full_name='Link.titles', index=4,
       number=5, type=11, cpp_type=10, label=3,
       default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
-      name='uri_templates', full_name='Link.uri_templates', index=5,
+      name='properties', full_name='Link.properties', index=5,
       number=6, type=11, cpp_type=10, label=3,
       default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -225,65 +159,21 @@ _LINK = descriptor.Descriptor(
   options=None)
 
 
-_REL = descriptor.Descriptor(
-  name='Rel',
-  full_name='Rel',
+_TITLE = descriptor.Descriptor(
+  name='Title',
+  full_name='Title',
   filename='xrd.proto',
   containing_type=None,
   fields=[
     descriptor.FieldDescriptor(
-      name='value', full_name='Rel.value', index=0,
+      name='lang', full_name='Title.lang', index=0,
       number=1, type=9, cpp_type=9, label=1,
       default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_MEDIATYPE = descriptor.Descriptor(
-  name='MediaType',
-  full_name='MediaType',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
     descriptor.FieldDescriptor(
-      name='value', full_name='MediaType.value', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_URI = descriptor.Descriptor(
-  name='Uri',
-  full_name='Uri',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='priority', full_name='Uri.priority', index=0,
-      number=1, type=17, cpp_type=1, label=1,
-      default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='value', full_name='Uri.value', index=1,
+      name='value', full_name='Title.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
@@ -298,83 +188,24 @@ _URI = descriptor.Descriptor(
   options=None)
 
 
-_URITEMPLATE = descriptor.Descriptor(
-  name='UriTemplate',
-  full_name='UriTemplate',
-  filename='xrd.proto',
-  containing_type=None,
-  fields=[
-    descriptor.FieldDescriptor(
-      name='priority', full_name='UriTemplate.priority', index=0,
-      number=1, type=17, cpp_type=1, label=1,
-      default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    descriptor.FieldDescriptor(
-      name='value', full_name='UriTemplate.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      default_value=unicode("", "utf-8"),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],  # TODO(robinson): Implement.
-  enum_types=[
-  ],
-  options=None)
-
-
-_XRD.fields_by_name['expires'].message_type = _EXPIRES
-_XRD.fields_by_name['subject'].message_type = _SUBJECT
-_XRD.fields_by_name['aliases'].message_type = _ALIAS
-_XRD.fields_by_name['types'].message_type = _TYPE
+_XRD.fields_by_name['properties'].message_type = _PROPERTY
 _XRD.fields_by_name['links'].message_type = _LINK
-_LINK.fields_by_name['subject'].message_type = _SUBJECT
-_LINK.fields_by_name['relations'].message_type = _REL
-_LINK.fields_by_name['media_types'].message_type = _MEDIATYPE
-_LINK.fields_by_name['uris'].message_type = _URI
-_LINK.fields_by_name['uri_templates'].message_type = _URITEMPLATE
+_LINK.fields_by_name['titles'].message_type = _TITLE
+_LINK.fields_by_name['properties'].message_type = _PROPERTY
 
 class Xrd(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _XRD
 
-class Expires(message.Message):
+class Property(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _EXPIRES
-
-class Subject(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _SUBJECT
-
-class Alias(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _ALIAS
-
-class Type(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _TYPE
+  DESCRIPTOR = _PROPERTY
 
 class Link(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _LINK
 
-class Rel(message.Message):
+class Title(message.Message):
   __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _REL
-
-class MediaType(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _MEDIATYPE
-
-class Uri(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _URI
-
-class UriTemplate(message.Message):
-  __metaclass__ = reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _URITEMPLATE
+  DESCRIPTOR = _TITLE
 
