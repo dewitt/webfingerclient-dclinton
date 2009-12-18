@@ -187,3 +187,62 @@ class Parser(object):
         title.lang = lang
       if title_element.text is not None:
         title.value = title_element.text
+
+
+class JsonMarshaller(object):
+
+  def __init__(self):
+    try:
+      import simplejson as json
+    except ImportError:
+      import json
+    self._json = json
+
+  def to_json(self, description_or_descriptions, pretty=False):
+    if isinstance(description_or_descriptions, list):
+      output = list()
+      for description in description_or_descriptions:
+        output.append(self._to_object(description))
+    else:
+      output = self._to_object(description_or_descriptions)
+    if pretty:
+      return self._json.dumps(output, indent=2)
+    else:
+      return self._json.dumps(output)
+
+  def _to_object(self, description):
+    output = dict()
+    if description.id:
+      output['id'] = description.id
+    if description.expires:
+      output['expires'] = description.expires
+    if description.subject:
+      output['subject'] = description.subject
+    if description.aliases:
+      output['aliases'] = [str(alias) for alias in description.aliases]
+    if description.properties:
+      for p in description.properties:
+        output['properties'].append({'type': p.type, 'value': p.value})
+    if description.links:
+      output['links'] = list()
+      for link in description.links:
+        link_dict = dict()
+        if link.rel:
+          link_dict['rel'] = link.rel
+        if link.type:
+          link_dict['type'] = link.type
+        if link.href:
+          link_dict['href'] = link.href
+        if link.template:
+          link_dict['template'] = link.template
+        if link.titles:  # TODO(dewitt): Change spec to have only a single title
+          link_dict['titles'] = list()
+          for title in link.titles:
+            title_dict = dict()
+            if title.lang:
+              title_dict['lang'] = title.lang
+            if title.value:
+              title_dict['value'] = title.value
+            link_dict['titles'].append(title_dict)
+        output['links'].append(link_dict)
+    return output

@@ -24,9 +24,11 @@ import httplib2
 import logging
 import os
 import re
+import simplejson
 import sys
 import urllib
 import webfinger
+import xrd
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -44,10 +46,28 @@ HTTP_CLIENT = httplib2.Http(MEMCACHE_CLIENT)
 ETREE_BUILDER = html5lib.treebuilders.getTreeBuilder("etree", etree)
 HTML_PARSER = html5lib.HTMLParser(ETREE_BUILDER)
 
+# This is totally nonstandard, but we need something
+BINARY_PROTOBUF_MIMETYPE = 'application/x-protobuf'
+ASCII_PROTOBUF_MIMETYPE = 'text/plain'
+JSON_MIMETYPE = 'application/json'
+
+
+UNSAFE_HTML_CHARS = re.compile(r'[^\w\,\.\s\'\:\/\-\_\?]')
+
+UNSAFE_JSON_CHARS = re.compile(r'[^\w\d\-\_]')
+
+
 def sanitize(string):
   """Allow only very safe chars through."""
-  return re.sub(r'[^\w\,\.\s\'\:\/\-\_\?]', '', string)
+  return UNSAFE_HTML_CHARS.sub('', string)
 
+
+def sanitize_callback(string):
+  """Only allow valid json function identifiers through"""
+  if UNSAFE_JSON_CHARS.search(string):
+    return None
+  else:
+    return string
 
 # Abstract base class for all page view classes
 class AbstractPage(webapp.RequestHandler):
@@ -73,16 +93,38 @@ class LookupPage(AbstractPage):
 
   def get(self):
     identifier = self.request.get('identifier')
+    if not identifier:
+      return self._error('Please enter an address')
     client = webfinger.Client(http_client=HTTP_CLIENT)
     try:
       descriptions = client.lookup(identifier)
     except Exception, e:
       return self._error(str(e))
+    format = self.request.get('format')
     template_values = dict()
     template_values['identifier'] = identifier
     template_values['descriptions'] = descriptions
-    self._render_template('lookup.tmpl', template_values)
-
+    if format == 'html':  # A simple HTML-only response
+      self._render_template('xrd-html.tmpl', template_values)
+    elif format == 'protoa':  # ASCII protobufs
+      self.response.headers['Content-Type'] = ASCII_PROTOBUF_MIMETYPE
+      output = '\n'.join([str(p) for p in descriptions])
+      self.response.out.write(output)
+    elif format == 'proto':  # Binary protobufs
+      self.response.headers['Content-Type'] = BINARY_PROTOBUF_MIMETYPE
+      output = '\n'.join([p.SerializeToString() for p in descriptions])
+      self.response.out.write(output)
+    elif format == 'json' or self.request.get('callback'):  # JSON or JSONP
+      self.response.headers['Content-Type'] = JSON_MIMETYPE
+      marshaller = xrd.JsonMarshaller()
+      pretty = self.request.get('pretty') in ['true', 'TRUE', 'pretty', '1']
+      output = marshaller.to_json(descriptions, pretty=pretty)
+      callback = sanitize_callback(self.request.get('callback'))
+      if callback:
+        output = '%s(%s)' % (callback, output)
+      self.response.out.write(output)
+    else:  # format == 'web'
+      self._render_template('lookup.tmpl', template_values)
 
 # Global application dispatcher
 application = webapp.WSGIApplication(
