@@ -40,7 +40,7 @@ ADDR_SPEC_RE = re.compile(ADDR_SPEC)
 DOMAIN_LEVEL_XRD_TEMPLATE = 'http://%s/.well-known/host-meta'
 
 # The rel value used to indicate a user lookup service
-WEBFINGER_SERVICE_REL_VALUE = 'http://webfinger.info/rel/service'
+WEBFINGER_SERVICE_REL_VALUE = 'lrdd'
 
 class ParseError(Exception):
   """Raised in the event an id can not be parsed."""
@@ -89,16 +89,15 @@ class Client(object):
     """
     id = self._normalize_id(id)
     addr_spec, local_part, domain = self._parse_id(id)
-    webfinger_service_links = self._get_webfinger_service_links(domain)
+    links = self._get_webfinger_service_links(domain)
     service_descriptions = list()
-    # TODO(dewitt): Search in priority order
-    for webfinger_service_link in webfinger_service_links:
-      for template in webfinger_service_link.uri_templates:
+    for link in links:
+      if link.template:
         service_descriptions.append(
-          self._get_service_description(template.value, id))
-      for uri in webfinger_service_link.uris:
+            self._get_service_description(link.template, id))
+      if link.href:
         service_descriptions.append(
-          self._get_service_description(uri.value, id))
+            self._get_service_description(link.href, id))
     return service_descriptions
 
   def _normalize_id(self, id):
@@ -114,7 +113,7 @@ class Client(object):
     elif id.startswith('acct:'):
       return id[5:]
     return id
-    
+
   def _get_service_description(self, template, id):
     """Retrieve and XRD or XFN instance from a xrd_pb2.Link.
 
@@ -122,7 +121,7 @@ class Client(object):
       template: A URI template string or URI string
       id: An account identifier
     Returns:
-      Either a xrd_pb2.Xrd or a xfn_pb2.Xfn instance (depending on the 
+      Either a xrd_pb2.Xrd or a xfn_pb2.Xfn instance (depending on the
       service type).
     """
     service_url = self._interpolate_webfinger_template(template, id)
@@ -139,7 +138,9 @@ class Client(object):
     Returns:
       The template with {id} and {%id} replaced
     """
-    return template.replace('{id}', id).replace('{%id}', urllib.quote(id))
+    for variable in ['{uri}', '{%uri}', '{id}', '{%id}']:
+      template = template.replace(variable, urllib.quote(id))
+    return template
 
   def _get_webfinger_service_links(self, domain):
     """Finds potential webfinger service links.
@@ -153,12 +154,10 @@ class Client(object):
     logging.info('Fetching domain url %s' % domain_url)
     content = self._fetch_url(domain_url)
     domain_xrd = self._xrd_parser.parse(content)
-    # TODO(dewitt): Sort by priority
     links = list()
     for link in domain_xrd.links:
-      for relation in link.relations:
-        if relation.value == WEBFINGER_SERVICE_REL_VALUE:
-          links.append(link)
+      if link.rel == WEBFINGER_SERVICE_REL_VALUE:
+        links.append(link)
     return links
 
   def _parse_id(self, id):
