@@ -4,29 +4,31 @@
     <meta charset="utf-8"/>
     <title>{{ identifier }}</title>
   </head>
-  <body>
+  <body>{% spaceless %}
   {% for description in descriptions %}
     <section class="description">
-      <div>
-        <span>Subject:</span> <span class="subject">{{ description.subject }}</span>
-      </div>
-      {% for alias in description.aliases %}
-      <div>
-        <span>Alias:</span> <span class="alias">{{ alias }}</span>
-      </div>
-      {% endfor %}
-      {% for link in description.links %}
-      <div>
-        {% if link.href %}
-	  {% if link.title %}
-            <a href="{{ link.href }}"><span class="rel">{{ link.rel }}</span> (<span class="title">{{ link.title }}</span>)</a>
-	  {% else %}
-            <a href="{{ link.href }}"><span class="rel">{{ link.rel }}</span></a>
+
+      <p>
+        Found webfinger information for <strong><a href="/lookup?identifier={{ description.subject }}"><span class="subject">{{ description.subject }}</span></a></strong>{% if description.aliases %}, otherwise known as 
+      {% for alias in description.aliases %}<a href="{{ alias }}" class="alias">{{ alias }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}.
+      </p>
+      {% if description.links %}
+      <p>
+        More service endpoints related to {{ description.subject }}:
+        <ul>
+        {% for link in description.links %}
+        <li>
+          {% if relationships|get_from_dict:link.rel %}
+            <a href="{{ link.href }}" rel="link"><abbr title="{{ link.rel }}">{{ relationships|get_from_dict:link.rel }}</abbr>{% if link.title %} - {{ link.title }}{% endif %}</a>
+          {% else %}
+            <a href="{{ link.href }}" rel="link">{{ link.rel }}{% if link.title %} - {{ link.title }}{% endif %}</a>
           {% endif %}
-        {% endif %}
-      </div>
-      {% endfor %}
+        </li>
+        {% endfor %}
+        </ul>
+      </p>
+      {% endif %}
     </section>
   {% endfor %}
-  </body>
+  {% endspaceless %}</body>
 </html>

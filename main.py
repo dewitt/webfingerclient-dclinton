@@ -38,6 +38,9 @@ from xml.etree import cElementTree as etree
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 
+template.register_template_library('templatefilters')
+
+
 # Enable a caching HTTP client
 MEMCACHE_CLIENT = Client()
 HTTP_CLIENT = httplib2.Http(MEMCACHE_CLIENT)
@@ -56,6 +59,13 @@ UNSAFE_HTML_CHARS = re.compile(r'[^\w\,\.\s\'\:\/\-\_\?]')
 
 UNSAFE_JSON_CHARS = re.compile(r'[^\w\d\-\_]')
 
+WELL_KNOWN_REL_VALUES = {
+    'http://portablecontacts.net/spec/1.0': 'Portable Contacts',
+    'http://webfinger.net/rel/profile-page': 'Profile',
+    'http://microformats.org/profile/hcard': 'HCard',
+    'http://gmpg.org/xfn/11': 'XFN',
+    'http://specs.openid.net/auth/2.0/provider': 'OpenID',
+}
 
 def sanitize(string):
   """Allow only very safe chars through."""
@@ -104,6 +114,7 @@ class LookupPage(AbstractPage):
     template_values = dict()
     template_values['identifier'] = identifier
     template_values['descriptions'] = descriptions
+    template_values['relationships'] = WELL_KNOWN_REL_VALUES
     if format == 'html':  # A simple HTML-only response
       self._render_template('xrd-html.tmpl', template_values)
     elif format == 'protoa':  # ASCII protobufs
