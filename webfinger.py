@@ -80,39 +80,25 @@ class Client(object):
     """Look up a webfinger resource by (email-like) id.
 
     Args:
-      id: An account identifier
+      id: An account identifier (which may or may not start with 'acct:')
     Returns:
       A list of discovered xrd_pb2.Xrd instances.
     Raises:
       FetchError if a URL can not be retrieved.
       ParseError if a description can not be parsed.
     """
-    id = self._normalize_id(id)
-    addr_spec, local_part, domain = self._parse_id(id)
+    local_part, domain = self._parse_id(id)
+    webfinger_id = 'acct:%s@%s' % (local_part, domain)
     links = self._get_webfinger_service_links(domain)
     service_descriptions = list()
     for link in links:
       if link.template:
         service_descriptions.append(
-            self._get_service_description(link.template, id))
+            self._get_service_description(link.template, webfinger_id))
       if link.href:
         service_descriptions.append(
-            self._get_service_description(link.href, id))
+            self._get_service_description(link.href, webfinger_id))
     return service_descriptions
-
-  def _normalize_id(self, id):
-    """Normalize the account identifier.
-
-    Args:
-      id: An acctount identifier
-    Returns:
-      A normalized account identifier, if possible.
-    """
-    if id.startswith('acct://'):
-      return id[7:]
-    elif id.startswith('acct:'):
-      return id[5:]
-    return id
 
   def _get_service_description(self, template, id):
     """Retrieve and XRD or XFN instance from a xrd_pb2.Link.
@@ -166,17 +152,22 @@ class Client(object):
     Args:
       id: An account identifier
     Returns:
-      The tuple (addr_spec, local_part, domain) if it can be parsed
+      The tuple (local_part, domain) if it can be parsed
     Raises:
       ParseError if the id can not be parsed
     """
+    # Strip any account prefix
+    if id.startswith('acct://'):
+      id = id[7:]
+    elif id.startswith('acct:'):
+      id = id[5:]
     realname, addr_spec = email.utils.parseaddr(id)
     if not addr_spec:
       raise ParseError('Could not parse %s for addr-spec' % id)
     match = ADDR_SPEC_RE.match(addr_spec)
     if not match:
       raise ParseError('Could not parse %s for local_part, domain' % id)
-    return addr_spec, match.group(1), match.group(2)
+    return match.group(1), match.group(2)
 
   def _fetch_url(self, url):
     """Fetch a URL.
