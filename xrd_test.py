@@ -115,9 +115,90 @@ class ParserTest(unittest.TestCase):
     self.assertEquals('User Photo', description.links[1].titles[0].value)
     self.assertEquals('en', description.links[1].titles[0].lang)
 
+class ParserTest(unittest.TestCase):
+
+  def _init_json(self):
+    try:
+      import simplejson as json
+    except ImportError:
+      import json
+    self._json = json
+
+  def testJsonConversion(self):
+    self._init_json()
+    parser = xrd.Parser()
+    description = parser.parse(
+        '''<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xml:id="foo">
+             <Expires>1970-01-01T00:00:00Z</Expires>
+             <Subject>http://example.com/gpburdell</Subject>
+             <Alias>http://people.example.com/gpburdell</Alias>
+             <Alias>acct:gpburdell@example.com</Alias>
+             <Property type="http://spec.example.net/version">1.0</Property>
+             <Property type="http://spec.example.net/version">2.0</Property>
+             <Property type="http://spec.example.net/type/person" xsi:nil="true" />
+             <Link rel="http://spec.example.net/auth/1.0"
+               href="http://services.example.com/auth" />
+             <Link rel="http://spec.example.net/photo/1.0" type="image/jpeg"
+               href="http://photos.example.com/gpburdell.jpg">
+               <Title xml:lang="en">User Photo</Title>
+               <Title xml:lang="de">Benutzerfoto</Title>
+               <Property type="http://spec.example.net/created/1.0">1970-01-01</Property>
+             </Link>
+             <Link rel="http://fake.com/moo" template="http://fake.com/tpl/{$id}" />
+           </XRD>''')
+    expected_xrd_json = self._json.loads(
+        '''{
+             "links": [
+               {
+                 "href": "http:\u002f\u002fservices.example.com\u002fauth",
+                 "rel": "http:\u002f\u002fspec.example.net\u002fauth\u002f1.0"
+               },
+               {
+                 "titles": {
+                   "de": "Benutzerfoto",
+                   "en": "User Photo"
+                 },
+                 "href": "http:\u002f\u002fphotos.example.com\u002fgpburdell.jpg",
+                 "type": "image\u002fjpeg",
+                 "rel": "http:\u002f\u002fspec.example.net\u002fphoto\u002f1.0"
+               },
+               {
+                 "template": "http:\u002f\u002ffake.com\u002ftpl\u002f{$id}",
+                 "rel": "http:\u002f\u002ffake.com\u002fmoo"
+               }
+             ],
+             "expires": "1970-01-01T00:00:00Z",
+             "id": "foo",
+             "subject": "http:\u002f\u002fexample.com\u002fgpburdell",
+             "properties": [
+               {
+                 "type": "http:\u002f\u002fspec.example.net\u002fversion",
+                 "value": "1.0"
+               },
+               {
+                 "type": "http:\u002f\u002fspec.example.net\u002fversion",
+                 "value": "2.0"
+               },
+               {
+                 "type": "http:\u002f\u002fspec.example.net\u002ftype\u002fperson"
+               }
+             ],
+             "aliases": [
+               "http:\u002f\u002fpeople.example.com\u002fgpburdell",
+               "acct:gpburdell@example.com"
+             ]
+           }''')
+    marshaller = xrd.JsonMarshaller()
+    xrd_json = self._json.loads(marshaller.to_json(description))
+    self.assertEquals(expected_xrd_json, xrd_json)
+
+
 def suite():
   suite = unittest.TestSuite()
   suite.addTests(unittest.makeSuite(ParserTest))
+  suite.addTests(unittest.makeSuite(JsonTest))
   return suite
 
 if __name__ == '__main__':
