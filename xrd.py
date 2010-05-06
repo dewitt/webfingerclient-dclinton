@@ -217,12 +217,20 @@ class JsonMarshaller(object):
     if description.expires:
       output['expires'] = description.expires
     if description.subject:
+      # jsmarr: note we're intentionally dropping any attributes on subject
       output['subject'] = description.subject
     if description.aliases:
+      # jsmarr: note we're intentionally dropping any attributes on aliases
       output['aliases'] = [str(alias) for alias in description.aliases]
     if description.properties:
+      output['properties'] = list()
       for p in description.properties:
-        output['properties'].append({'type': p.type, 'value': p.value})
+        prop_val = dict()
+        if p.type:
+          prop_val['type'] = p.type
+        if p.value:
+          prop_val['value'] = p.value
+        output['properties'].append(prop_val)
     if description.links:
       output['links'] = list()
       for link in description.links:
@@ -235,14 +243,18 @@ class JsonMarshaller(object):
           link_dict['href'] = link.href
         if link.template:
           link_dict['template'] = link.template
-        if link.titles:  # TODO(dewitt): Change spec to have only a single title
-          link_dict['titles'] = list()
+        if link.titles:
+          # jsmarr: note we're assuming at most one title-per-language
+          title_dict = dict()
           for title in link.titles:
-            title_dict = dict()
-            if title.lang:
-              title_dict['lang'] = title.lang
-            if title.value:
-              title_dict['value'] = title.value
-            link_dict['titles'].append(title_dict)
+            if not title.value:
+              continue
+            title_lang = title.lang or ''
+            if title_lang not in title_dict:
+              title_dict[title_lang] = title.value
+          if title_dict:
+            link_dict['titles'] = title_dict
         output['links'].append(link_dict)
+    # jsmarr: note we're not representing signature in json
+
     return output

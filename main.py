@@ -53,6 +53,7 @@ HTML_PARSER = html5lib.HTMLParser(ETREE_BUILDER)
 BINARY_PROTOBUF_MIMETYPE = 'application/x-protobuf'
 ASCII_PROTOBUF_MIMETYPE = 'text/plain'
 JSON_MIMETYPE = 'application/json'
+JSON_PRETTY_MIMETYPE = 'text/plain'
 
 
 UNSAFE_HTML_CHARS = re.compile(r'[^\w\,\.\s\'\:\/\-\_\?]')
@@ -79,6 +80,19 @@ def sanitize_callback(string):
   else:
     return string
 
+def output_xrd_as_json(page, xrd_data):
+    pretty = page.request.get('pretty') in ['true', 'TRUE', 'pretty', '1']
+    if pretty:
+      page.response.headers['Content-Type'] = JSON_PRETTY_MIMETYPE
+    else:
+      page.response.headers['Content-Type'] = JSON_MIMETYPE
+    marshaller = xrd.JsonMarshaller()
+    output = marshaller.to_json(xrd_data, pretty=pretty)
+    callback = sanitize_callback(page.request.get('callback'))
+    if callback:
+      output = '%s(%s)' % (callback, output)
+    page.response.out.write(output)
+
 # Abstract base class for all page view classes
 class AbstractPage(webapp.RequestHandler):
 
@@ -97,6 +111,17 @@ class MainPage(AbstractPage):
     error = self.request.get('error')
     return self._render_template('main.tmpl', {'error': sanitize(error)})
 
+# Converts an arbitrary XRD file to JSON
+class Xrd2JsonPage(AbstractPage):
+
+  def get(self):
+    xrd_url = self.request.get('xrdUrl')
+    if not xrd_url:
+      return self._error('Please enter an xrd URL')
+
+    client = webfinger.Client(http_client=HTTP_CLIENT)
+    xrd_data = client.fetch_and_parse_xrd(xrd_url)
+    output_xrd_as_json(self, xrd_data)
 
 # Renders the results of the lookup page
 class LookupPage(AbstractPage):
@@ -126,21 +151,15 @@ class LookupPage(AbstractPage):
       output = '\n'.join([p.SerializeToString() for p in descriptions])
       self.response.out.write(output)
     elif format == 'json' or self.request.get('callback'):  # JSON or JSONP
-      self.response.headers['Content-Type'] = JSON_MIMETYPE
-      marshaller = xrd.JsonMarshaller()
-      pretty = self.request.get('pretty') in ['true', 'TRUE', 'pretty', '1']
-      output = marshaller.to_json(descriptions, pretty=pretty)
-      callback = sanitize_callback(self.request.get('callback'))
-      if callback:
-        output = '%s(%s)' % (callback, output)
-      self.response.out.write(output)
+      output_xrd_as_json(self, descriptions)
     else:  # format == 'web'
       self._render_template('lookup.tmpl', template_values)
 
 # Global application dispatcher
 application = webapp.WSGIApplication(
   [('/', MainPage),
-   ('/lookup', LookupPage)],
+   ('/lookup', LookupPage),
+   ('/xrd2json', Xrd2JsonPage)],
   debug=True)
 
 

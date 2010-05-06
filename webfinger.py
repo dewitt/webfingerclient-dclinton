@@ -100,8 +100,12 @@ class Client(object):
             self._get_service_description(link.href, webfinger_id))
     return service_descriptions
 
+  def fetch_and_parse_xrd(self, xrd_url):
+    content = self._fetch_url(xrd_url)
+    return self._xrd_parser.parse(content)
+
   def _get_service_description(self, template, id):
-    """Retrieve and XRD or XFN instance from a xrd_pb2.Link.
+    """Retrieve an XRD or XFN instance from a xrd_pb2.Link.
 
     Args:
       template: A URI template string or URI string
@@ -112,8 +116,7 @@ class Client(object):
     """
     service_url = self._interpolate_webfinger_template(template, id)
     logging.info('Fetching service url %s' % service_url)
-    content = self._fetch_url(service_url)
-    return self._xrd_parser.parse(content)
+    return self.fetch_and_parse_xrd(service_url)
 
   def _interpolate_webfinger_template(self, template, id):
     """Replaces occurances of {id} and {%id} within a webfinger template.
@@ -138,8 +141,7 @@ class Client(object):
     """
     domain_url = DOMAIN_LEVEL_XRD_TEMPLATE % domain
     logging.info('Fetching domain url %s' % domain_url)
-    content = self._fetch_url(domain_url)
-    domain_xrd = self._xrd_parser.parse(content)
+    domain_xrd = self.fetch_and_parse_xrd(domain_url)
     links = list()
     for link in domain_xrd.links:
       if link.rel == WEBFINGER_SERVICE_REL_VALUE:
