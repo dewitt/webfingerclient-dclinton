@@ -80,18 +80,21 @@ def sanitize_callback(string):
   else:
     return string
 
-def output_xrd_as_json(page, xrd_data):
-    pretty = page.request.get('pretty') in ['true', 'TRUE', 'pretty', '1']
-    if pretty:
-      page.response.headers['Content-Type'] = JSON_PRETTY_MIMETYPE
+def output_xrd(page, xrd_data, format):
+    if format == 'json':
+      pretty = page.request.get('pretty') in ['true', 'TRUE', 'pretty', '1']
+      if pretty:
+        page.response.headers['Content-Type'] = JSON_PRETTY_MIMETYPE
+      else:
+        page.response.headers['Content-Type'] = JSON_MIMETYPE
+      marshaller = xrd.JsonMarshaller()
+      output = marshaller.to_json(xrd_data, pretty=pretty)
+      callback = sanitize_callback(page.request.get('callback'))
+      if callback:
+        output = '%s(%s)' % (callback, output)
+      page.response.out.write(output)
     else:
-      page.response.headers['Content-Type'] = JSON_MIMETYPE
-    marshaller = xrd.JsonMarshaller()
-    output = marshaller.to_json(xrd_data, pretty=pretty)
-    callback = sanitize_callback(page.request.get('callback'))
-    if callback:
-      output = '%s(%s)' % (callback, output)
-    page.response.out.write(output)
+      page._error('Unsupported output format')
 
 # Abstract base class for all page view classes
 class AbstractPage(webapp.RequestHandler):
@@ -112,16 +115,18 @@ class MainPage(AbstractPage):
     return self._render_template('main.tmpl', {'error': sanitize(error)})
 
 # Converts an arbitrary XRD file to JSON
-class Xrd2JsonPage(AbstractPage):
+class XrdPage(AbstractPage):
 
   def get(self):
-    xrd_url = self.request.get('xrdUrl')
+    xrd_url = self.request.get('url')
     if not xrd_url:
       return self._error('Please enter an xrd URL')
 
+    format = self.request.get('format') or 'json'
+
     client = webfinger.Client(http_client=HTTP_CLIENT)
     xrd_data = client.fetch_and_parse_xrd(xrd_url)
-    output_xrd_as_json(self, xrd_data)
+    output_xrd(self, xrd_data, format)
 
 # Renders the results of the lookup page
 class LookupPage(AbstractPage):
@@ -159,7 +164,7 @@ class LookupPage(AbstractPage):
 application = webapp.WSGIApplication(
   [('/', MainPage),
    ('/lookup', LookupPage),
-   ('/xrd2json', Xrd2JsonPage)],
+   ('/xrd', XrdPage)],
   debug=True)
 
 
