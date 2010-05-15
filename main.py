@@ -156,7 +156,7 @@ class LookupPage(AbstractPage):
       output = '\n'.join([p.SerializeToString() for p in descriptions])
       self.response.out.write(output)
     elif format == 'json' or self.request.get('callback'):  # JSON or JSONP
-      output_xrd_as_json(self, descriptions)
+      output_xrd(self, descriptions, 'json')
     else:  # format == 'web'
       self._render_template('lookup.tmpl', template_values)
 
